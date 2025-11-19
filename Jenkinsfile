@@ -29,29 +29,6 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv(SONARQUBE) {
-                    sh """
-                        mvn sonar:sonar \
-                        -Dsonar.projectKey=java-app \
-                        -Dsonar.projectName=java-app \
-                        -Dsonar.sources=src/main/java \
-                        -Dsonar.tests=src/test/java \
-                        -Dsonar.java.binaries=target/classes
-                    """
-                }
-            }
-        }
-
-        stage('Deploy to Tomcat') {
-            when { branch 'master' }       // only for main branch
-            steps {
-                sshagent(credentials: ['ssh']) {
-                    sh "scp ${WAR_FILE} ${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/"
-                }
-            }
-        }
     }
 
     post {
