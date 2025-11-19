@@ -23,22 +23,7 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv(SONARQUBE) {
-                    sh """
-                        mvn sonar:sonar \
-                        -Dsonar.projectKey=java-app \
-                        -Dsonar.projectName=java-app \
-                        -Dsonar.sources=src/main/java \
-                        -Dsonar.tests=src/test/java \
-                        -Dsonar.java.binaries=target/classes
-                    """
-                }
-            }
-        }
-
-        stage('Deploy') {
+           stage('Deploy') {
             when { branch 'master' } // only master branch
             steps {
                 echo "Deploying to Tomcat..."
