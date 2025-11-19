@@ -1,50 +1,62 @@
 pipeline {
     agent any
+
     environment {
-        // Set environment variable based on branch
-        IS_MAIN = "${env.BRANCH_NAME == 'main'}"
+        SONARQUBE = 'sonar-token'        // Jenkins SonarQube server name
+        DEPLOY_USER = 'ubuntu'
+        DEPLOY_HOST = '54.227.140.74'
+        DEPLOY_PATH = '/opt/tomcat/webapps'
+        WAR_FILE = 'target/TomcatMavenApp-2.0.war'
     }
+
     stages {
         stage('Checkout') {
             steps {
-                git branch: "${env.BRANCH_NAME}", url: 'https://github.com/your-repo.git'
+                git branch: "${env.BRANCH_NAME}", url: 'https://github.com/sandeep428/maven.git'
             }
         }
 
-        stage('Build') {
-            when { branch 'main' } // only main branch
+        stage('Build & Package') {
+            when { branch 'main' }       // only for main branch
             steps {
-                echo "Building application..."
                 sh 'mvn clean package -DskipTests'
             }
         }
 
-        stage('Test') {
+        stage('Run Tests') {
             steps {
-                echo "Running tests..."
                 sh 'mvn test'
             }
         }
 
-        stage('Code Scan') {
+        stage('SonarQube Analysis') {
             steps {
-                echo "Running SonarQube or other scans..."
-                sh 'mvn sonar:sonar'
+                withSonarQubeEnv(SONARQUBE) {
+                    sh """
+                        mvn sonar:sonar \
+                        -Dsonar.projectKey=java-app \
+                        -Dsonar.projectName=java-app \
+                        -Dsonar.sources=src/main/java \
+                        -Dsonar.tests=src/test/java \
+                        -Dsonar.java.binaries=target/classes
+                    """
+                }
             }
         }
 
-        stage('Deploy') {
-            when { branch 'main' } // only main branch
+        stage('Deploy to Tomcat') {
+            when { branch 'main' }       // only for main branch
             steps {
-                echo "Deploying to production server..."
-                sh 'scp target/*.war user@server:/tomcat/webapps/'
+                sshagent(credentials: ['ssh']) {
+                    sh "scp ${WAR_FILE} ${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/"
+                }
             }
         }
     }
+
     post {
-        always {
-            echo "Cleaning workspace..."
-            cleanWs()
-        }
+        success { echo "Pipeline completed successfully!" }
+        failure { echo "Pipeline failed. Check logs for details." }
     }
 }
+
