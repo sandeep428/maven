@@ -25,10 +25,15 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                echo "Running SonarQube scan..."
-                // replace 'SonarQube-Local' with your Jenkins SonarQube installation name
-                withSonarQubeEnv('SonarQube-Local') {
-                    sh 'mvn sonar:sonar'
+                withSonarQubeEnv(SONARQUBE) {
+                    sh """
+                        mvn sonar:sonar \
+                        -Dsonar.projectKey=java-app \
+                        -Dsonar.projectName=java-app \
+                        -Dsonar.sources=src/main/java \
+                        -Dsonar.tests=src/test/java \
+                        -Dsonar.java.binaries=target/classes
+                    """
                 }
             }
         }
