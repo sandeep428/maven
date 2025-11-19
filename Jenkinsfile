@@ -27,7 +27,7 @@ pipeline {
             when { branch 'master' } // only master branch
             steps {
                 echo "Deploying to Tomcat..."
-                sh 'scp target/*.war ubutnu@54.227.140.74:opt/tomcat/webapps/'
+                cp target/*.war opt/tomcat/webapps/'
             }
         }
     }
