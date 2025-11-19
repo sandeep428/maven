@@ -18,14 +18,13 @@ public class App {
         return a + b;
     }
     
-    // Safe division with exception handling
-    public double safeDivide(int a, int b) {
-        try {
-            return a / b;
-        } catch (ArithmeticException e) {
+    // Safe division: returns double, handles divide by zero
+    public double safeDivide(double a, double b) {
+        if (b == 0) {
             System.out.println("Cannot divide by zero!");
             return 0;
         }
+        return a / b;
     }
     
     // Create a list of numbers
@@ -36,9 +35,3 @@ public class App {
         }
         return list;
     }
-    
-    // Example of a "code smell" method: unused variable
-    public void unusedVariable() {
-        int x = 42; // SonarQube will flag this
-    }
-}
