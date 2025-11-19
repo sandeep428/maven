@@ -18,7 +18,7 @@ pipeline {
 
     stages {
 
-        /* ------------------ COMMON STAGES FOR ALL BRANCHES ------------------ */
+        /* ------------------ COMMON FOR ALL BRANCHES ------------------ */
 
         stage('Checkout') {
             agent { label 'built-in' }
@@ -70,7 +70,7 @@ pipeline {
             }
         }
 
-        /* ------------------ MAIN BRANCH ONLY STAGES ------------------ */
+        /* ------------------ MAIN BRANCH ONLY ------------------ */
 
         stage('Upload to JFrog Artifactory') {
             when { branch 'main' }
@@ -83,6 +83,16 @@ pipeline {
                             -T ${WAR_FILE} \
                             ${ART_URL}/${ART_REPO}/${ARTIFACT_NAME}
                     """
+                }
+            }
+        }
+
+        stage('Manual Approval (Only for main)') {
+            when { branch 'main' }
+            agent { label 'built-in' }
+            steps {
+                timeout(time: 15, unit: 'MINUTES') {
+                    input message: "Approve deployment to Tomcat?"
                 }
             }
         }
@@ -116,10 +126,10 @@ pipeline {
 
     post {
         success {
-            echo "Pipeline completed successfully (${env.BRANCH_NAME})!"
+            echo "Pipeline completed successfully on branch: ${env.BRANCH_NAME}"
         }
         failure {
-            echo "Pipeline failed for branch ${env.BRANCH_NAME}. Check logs."
+            echo "Pipeline failed on branch: ${env.BRANCH_NAME}"
         }
     }
 }
