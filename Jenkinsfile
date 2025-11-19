@@ -1,5 +1,6 @@
 pipeline {
     agent any
+
     stages {
         stage('Checkout') {
             steps {
@@ -23,17 +24,15 @@ pipeline {
             }
         }
 
-           stage('Deploy') {
-    when { branch 'master' } // only master branch
-    steps {
-        echo "Deploying to Tomcat..."
-        sh 'cp target/*.war /opt/tomcat/webapps/'
-    }
-}
-
+        stage('Deploy') {
+            when { branch 'master' } // only master branch
+            steps {
+                echo "Deploying to Tomcat..."
+                sh 'cp target/*.war /opt/tomcat/webapps/'
             }
         }
     }
+
     post {
         always {
             echo "Cleaning workspace..."
