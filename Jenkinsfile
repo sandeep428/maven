@@ -24,10 +24,13 @@ pipeline {
         }
 
            stage('Deploy') {
-            when { branch 'master' } // only master branch
-            steps {
-                echo "Deploying to Tomcat..."
-                cp target/*.war opt/tomcat/webapps/'
+    when { branch 'master' } // only master branch
+    steps {
+        echo "Deploying to Tomcat..."
+        sh 'cp target/*.war /opt/tomcat/webapps/'
+    }
+}
+
             }
         }
     }
