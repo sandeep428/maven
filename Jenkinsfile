@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE = 'sonar'        // Jenkins SonarQube server name
+        SONARQUBE = 'sonar-token'        // Jenkins SonarQube server name
         DEPLOY_USER = 'ubuntu'
         DEPLOY_HOST = '54.227.140.74'
         DEPLOY_PATH = '/opt/tomcat/webapps'
@@ -17,7 +17,7 @@ pipeline {
         }
 
         stage('Build & Package') {
-            when { branch 'main' }       // only for main branch
+            when { branch 'master' }       // only for main branch
             steps {
                 sh 'mvn clean package -DskipTests'
             }
@@ -45,7 +45,7 @@ pipeline {
         }
 
         stage('Deploy to Tomcat') {
-            when { branch 'main' }       // only for main branch
+            when { branch 'master' }       // only for main branch
             steps {
                 sshagent(credentials: ['ssh']) {
                     sh "scp ${WAR_FILE} ${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/"
