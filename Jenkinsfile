@@ -73,7 +73,7 @@ pipeline {
         /* ------------------ MAIN BRANCH ONLY ------------------ */
 
         stage('Upload to JFrog Artifactory') {
-            when { branch 'main' }
+            when { branch 'master' }
             agent { label 'built-in' }
             steps {
                 withCredentials([string(credentialsId: 'jfrog-new-token', variable: 'JFROG_TOKEN')]) {
@@ -88,7 +88,7 @@ pipeline {
         }
 
         stage('Manual Approval (Only for main)') {
-            when { branch 'main' }
+            when { branch 'master' }
             agent { label 'built-in' }
             steps {
                 timeout(time: 15, unit: 'MINUTES') {
@@ -98,7 +98,7 @@ pipeline {
         }
 
         stage('Download Artifact from JFrog') {
-            when { branch 'main' }
+            when { branch 'master' }
             agent { label 'tomcat-agent' }
             steps {
                 withCredentials([string(credentialsId: 'jfrog-new-token', variable: 'JFROG_TOKEN')]) {
@@ -113,7 +113,7 @@ pipeline {
         }
 
         stage('Deploy to Tomcat') {
-            when { branch 'main' }
+            when { branch 'master' }
             agent { label 'tomcat-agent' }
             steps {
                 sh """
